@@ -10,6 +10,8 @@
 # 
 # We model this problem with the following matrix:
 
+library(markovchain)
+
 rentalStates <- c("Downtown", "East", "West")
 rentalTransition <- matrix(c(0.3, 0.3, 0.4, 
                       0.4, 0.4, 0.2, 
