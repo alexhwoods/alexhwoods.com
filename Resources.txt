@@ -1,0 +1,15 @@
+http://adv-r.had.co.nz           // Advanced R by Hadley Wickham
+
+http://www.reddit.com/r/MachineLearning/comments/1jeawf/machine_learning_books/?
+
+http://statweb.stanford.edu/~tibs/ElemStatLearn/ # elements of statistical learning
+
+http://www.cs.toronto.edu/~mackay/itprnn/book.pdf
+
+https://www.umiacs.umd.edu/~hal/courses/2013S_ML/math4ml.pdf
+
+
+
+For cybera
+
+http://blog.shakirm.com/2015/07/a-statistical-view-of-deep-learning-retrospective/

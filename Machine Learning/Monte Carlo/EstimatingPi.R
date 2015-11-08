@@ -17,6 +17,10 @@ square <- matrix(points, nrow = 4, ncol = 2, byrow = TRUE)
 n <- 100                         # number of points
 A <- matrix(runif(n*2, min=0, max=5), nrow = n, ncol = 2, byrow = T)   # random sampling occurs here!!!
 
+## An alternate way to generate randoms, with faster convergence
+# library(randtoolbox)
+# A <- matrix(5*halton(n*2), nrow = n, ncol = 2, byrow = T)
+
 # here's how you'll test if it's in the circle. 
 b <- apply(A, 1, distanceFromCenter)           
 d <- subset(b, b < radius)                         # if you know a better way to do this part, email me.
@@ -33,12 +37,22 @@ for (i in 1:2000) {
   piVec[i] = num*4
 }
 
+library(data.table)
+Pi <- data.frame(piVec)
+Pi <- data.table(Pi)
+Pi[, ind := seq(0, 1999)]
+Pi[, error := abs(pi - piVec)]
+Pi <- data.frame(Pi)
+names(Pi) <- c("guess", "ind", "error")
+
+
 
 ##### Graphing the error
 
 # note - if you want this part to work for you, you'll have to create the appropriate data frame from the piVec vector.
+library(ggplot2)
 
-ggplot(Pi, aes(x=ind, y = error)) +
+ggplot(Pi, aes(x = ind, y = error)) +
   geom_line(colour = '#388E8E') + 
   ggtitle("Error") + 
   xlab("Sample Size") + 
