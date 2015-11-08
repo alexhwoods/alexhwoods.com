@@ -2,7 +2,9 @@
 # data. It helps you see any craziness, or if your underlying assumptions (Normal, etc)
 # are reasonable.
 
-# ggplot(dat, aes(x=xvar, y=yvar, color=cond)) + geom_point(shape=1)
+# data on my github!
+train <- read.csv("train.csv", header = T)
+test <- read.csv("test.csv", header = T)
 
 library(ggplot2)
 ggplot(train, aes(x = gpa, y = gre, color = as.integer(admit))) + 
@@ -11,6 +13,9 @@ ggplot(train, aes(x = gpa, y = gre, color = as.integer(admit))) +
 # mmm I can't stand when the colors go on a spectrum when it's obviously discrete, 
 # so I'm going to fix that.
 train$admit2 = F
+train$X = NULL          # an 'X' column pops up every time you write and load a csv...
+test$X = NULL
+
 for (i in 1:nrow(train)) {
   if (train[i,1] == 1) train[i,5] = T
 }
@@ -21,7 +26,8 @@ ggplot(train, aes(x = gpa, y = gre, color = admit2)) +
   geom_point(shape = 1) + 
   xlab("GPA") + 
   ylab("GRE") +
-  ggtitle("Distribution of Students")
+  ggtitle("Distribution of Students") + 
+  labs(colour = 'Accepted')
 
 
 # So just looking at the data shows that there isn't exactly the clearest boundaries.
@@ -29,8 +35,7 @@ ggplot(train, aes(x = gpa, y = gre, color = admit2)) +
 # but anyway, we continue
 
 # So the way to do this is to split the training data by class, then calculate the all 
-# the probabilites for each class. For example, given that a student was admitted, what
-# is the probability they had a GPA of 3.4?
+# the probabilites for each class. 
 
 one <- subset(train, admit == 1)
 zero <- subset(train, admit == 0)
@@ -44,11 +49,11 @@ priorRejected <- nrow(zero) / nrow(train)
 
 
 # Now calculating the conditional likelihood for a new given test example, we have to 
-# do this using a Gaussian Distribution that supposedly exists within each class.
+# do this using a Gaussian Distribution that exists within each class.
 # So, let's write a function to give this probability
 
 condProb <- function(df, testObj, var) {
-  # note - col2 = gre, col3 = gpa, col4 = rank...let's make a dictionary
+  # note - in train df, col2 = gre, col3 = gpa, col4 = rank...let's make a dictionary
   dict <- vector(mode = "list", length = 3)
   names(dict) <- c("gre", "gpa", "rank")
   dict[[1]] <- 2; dict[[2]] <- 3; dict[[3]] <- 4
@@ -81,11 +86,16 @@ condProb(one, test[1,], "gpa") == testProb
 # and it works :)
 
 
+
+# So far we have calculated the prior, and the likelihood. Now we combine 
+# them to calculate the postierior.
+
+
 # Now we can calculate the probability that test vector x is in each class, admitted or
-# rejected. And the max probability of the two will be what our classifier predicts.
+# rejected. And the max posterior probability of the two will be what our classifier predicts.
 
 
-# note - condProb(df, testObj, var)
+# note - condProb(df, testObj, var)    $ format of condProb function $
 # where df is one or zero, depending on the class we're calculating for
 # testObj is a row of test data, for example test[1, ] would be the first row
 # var is gpa, gre, or rank, and it just depends on which I'm calculating for. 
@@ -105,7 +115,6 @@ for (i in 1:nrow(test)) {
   probAdmit <- priorAdmitted * condProb(one, test[i, ], "gre") * condProb(one, test[i, ], "gpa") * condProb(one, test[i, ], "rank")
   probReject <- priorRejected * condProb(zero, test[i, ], "gre") * condProb(zero, test[i, ], "gpa") * condProb(zero, test[i, ], "rank")
   
-  print(i)
   if (probAdmit > probReject) test[i, 5] = 1
   else test[i, 5] = 0
   
@@ -126,10 +135,24 @@ for (i in 1:nrow(test)) {
 }
 
 
-accuracy <- nrow(subset(test, correct == T)) / nrow(test)   # 0.65. I'll take it, considering how finnicky college admissions seem to be.
+accuracy <- nrow(subset(test, correct == T)) / nrow(test)   # I'll take it, considering how finnicky college admissions seem to be.
 
 
-# one good habit is to test it against a naive Bayes package in R
+
+# Let's look at where the predictions we're more accurate; what biases did the model have?
+# It definitely predicted rejected correct more.
+ggplot(test, aes(x = gpa, y = gre, color = correct)) + 
+  geom_point(shape = 1) + 
+  xlab("GPA") + 
+  ylab("GRE") +
+  ggtitle("Predictions") + 
+  labs(colour = 'Correct Prediction')
+
+
+
+
+# Our accuracy level isn't great, but I would also argue the data isn't separable to a high degree.
+# One way we can test our model is to run it against a naive Bayes package in R.
 install.packages("e1071")
 library (e1071)
 
@@ -143,5 +166,4 @@ pred <- predict(model, test)
 table(pred, test[,1])
 
 
-# and if you do the math and get an accuracy rating from that table, you'll find it is 
-# 0.63, 0.02 less than our model :)
+# and if you do the math and get an accuracy rating for this one, you'll see ours is higher.
