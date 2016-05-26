@@ -112,8 +112,10 @@ test$predict <- 0
 
 
 for (i in 1:nrow(test)) {
-  probAdmit <- priorAdmitted * condProb(one, test[i, ], "gre") * condProb(one, test[i, ], "gpa") * condProb(one, test[i, ], "rank")
-  probReject <- priorRejected * condProb(zero, test[i, ], "gre") * condProb(zero, test[i, ], "gpa") * condProb(zero, test[i, ], "rank")
+  probAdmit <- priorAdmitted * condProb(one, test[i, ], "gre") * condProb(one, test[i, ], "gpa") * 
+    condProb(one, test[i, ], "rank")
+  probReject <- priorRejected * condProb(zero, test[i, ], "gre") * condProb(zero, test[i, ], "gpa") * 
+    condProb(zero, test[i, ], "rank")
   
   if (probAdmit > probReject) test[i, 5] = 1
   else test[i, 5] = 0
