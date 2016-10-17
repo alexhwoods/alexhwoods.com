@@ -23,8 +23,9 @@ A <- matrix(runif(n*2, min=0, max=5), nrow = n, ncol = 2, byrow = T)   # random 
 
 # here's how you'll test if it's in the circle. 
 b <- apply(A, 1, distanceFromCenter)           
-d <- subset(b, b < radius)                         # if you know a better way to do this part, email me.
-num <- length(d) / length(b)
+# d <- subset(b, b < radius)                         # if you know a better way to do this part, email me.
+# num <- length(d) / length(b)
+num <- mean(b < radius)
 
 piVec <- c()
 
