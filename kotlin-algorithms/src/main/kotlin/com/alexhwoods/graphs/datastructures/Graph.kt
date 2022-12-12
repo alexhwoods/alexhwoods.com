@@ -20,7 +20,7 @@ data class Graph<T>(
         vertices = weights.keys.toList().getUniqueValuesFromPairs(),
         edges = weights.keys
             .groupBy { it.first }
-            .mapValues { it.value.getUniqueValuesFromPairs { x -> x !== it.key } }
+            .mapValues { it.value.getUniqueValuesFromPairs { x -> x != it.key } }
             .withDefault { emptySet() },
         weights = weights
     )
